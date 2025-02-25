@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { API_URL } from '../config';
 
 const DashboardContainer = styled.div`
   max-width: 1200px;
@@ -224,7 +225,7 @@ const Dashboard = () => {
       }
 
       try {
-        const response = await fetch('http://localhost:5000/api/users/me', {
+        const response = await fetch(`${API_URL}/api/users/me`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -253,7 +254,7 @@ const Dashboard = () => {
 
     try {
       // Verify room exists
-      const roomResponse = await fetch(`http://localhost:5000/api/rooms/verify`, {
+      const roomResponse = await fetch(`${API_URL}/api/rooms/verify`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -267,7 +268,7 @@ const Dashboard = () => {
       const { roomId } = await roomResponse.json();
 
       // Add user to room
-      const addResponse = await fetch('http://localhost:5000/api/rooms/addUser', {
+      const addResponse = await fetch(`${API_URL}/api/rooms/addUser`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -282,7 +283,7 @@ const Dashboard = () => {
       }
 
       // Refresh user data
-      const userResponse = await fetch('http://localhost:5000/api/users/me', {
+      const userResponse = await fetch(`${API_URL}/api/users/me`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -306,7 +307,7 @@ const Dashboard = () => {
       if (!token || !user) return;
 
       try {
-        const response = await fetch('http://localhost:5000/api/users/matches', {
+        const response = await fetch(`${API_URL}/api/users/matches`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }

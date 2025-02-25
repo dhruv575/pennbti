@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { API_URL } from '../config';
 
 // Reference Dashboard.js styling
 const Container = styled.div`
@@ -162,7 +163,7 @@ const Room = () => {
     const { password } = JSON.parse(roomAuth);
 
     try {
-      const response = await fetch(`http://localhost:5000/api/rooms/${code}`, {
+      const response = await fetch(`${API_URL}/api/rooms/${code}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -200,7 +201,7 @@ const Room = () => {
     const { password } = JSON.parse(roomAuth);
 
     try {
-      const response = await fetch(`http://localhost:5000/api/rooms/${code}/matches`, {
+      const response = await fetch(`${API_URL}/api/rooms/${code}/matches`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

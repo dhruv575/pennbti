@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import questions from '../assets/questions.json';
+import { API_URL } from '../config';
 
 const Container = styled.div`
   padding: 5% 10%;
@@ -212,7 +213,7 @@ const Test = () => {
     ].join('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/users/mbti', {
+      const response = await fetch(`${API_URL}/api/users/mbti`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

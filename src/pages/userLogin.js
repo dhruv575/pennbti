@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { API_URL } from '../config';
 
 const Container = styled.div`
   max-width: 400px;
@@ -107,7 +108,7 @@ const UserLogin = () => {
       const token = localStorage.getItem('userToken');
       if (token) {
         try {
-          const response = await fetch('http://localhost:5000/api/users/me', {
+          const response = await fetch(`${API_URL}/api/users/me`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -133,7 +134,7 @@ const UserLogin = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:5000/api/users/login', {
+      const response = await fetch(`${API_URL}/api/users/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -157,7 +158,7 @@ const UserLogin = () => {
   const handleSignup = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:5000/api/users/signup', {
+      const response = await fetch(`${API_URL}/api/users/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -172,7 +173,7 @@ const UserLogin = () => {
       }
 
       // Automatically log in after successful signup
-      const loginResponse = await fetch('http://localhost:5000/api/users/login', {
+      const loginResponse = await fetch(`${API_URL}/api/users/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { API_URL } from '../config';
 
 // Reusing styles from userLogin.js
 const Container = styled.div`
@@ -123,7 +124,7 @@ const RoomLogin = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/rooms/create', {
+      const response = await fetch(`${API_URL}/api/rooms/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -159,7 +160,7 @@ const RoomLogin = () => {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/rooms/login', {
+      const response = await fetch(`${API_URL}/api/rooms/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
