@@ -201,9 +201,15 @@ const Test = () => {
   };
 
   const calculateMBTI = async () => {
-    const averages = answers.map(section => 
-      section.reduce((a, b) => a + b, 0) / section.length
-    );
+    console.log('Raw answers:', answers);
+    
+    const averages = answers.map(section => {
+      const sectionTotal = section.reduce((a, b) => a + b, 0);
+      const sectionAverage = parseFloat((sectionTotal / section.length).toFixed(2));
+      return sectionAverage;
+    });
+    
+    console.log('Calculated averages:', averages);
 
     const mbti = [
       averages[0] < 2.5 ? 'E' : 'I',
@@ -213,16 +219,27 @@ const Test = () => {
     ].join('');
 
     try {
+      console.log('Sending to backend:', { mbti, scores: averages });
+      
       const response = await fetch(`${API_URL}/api/users/mbti`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('userToken')}`
         },
-        body: JSON.stringify({ mbti })
+        body: JSON.stringify({ 
+          mbti,
+          scores: averages
+        })
       });
 
-      if (!response.ok) throw new Error('Failed to update MBTI');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update MBTI');
+      }
+      
+      const responseData = await response.json();
+      console.log('Backend response:', responseData);
       
       navigate('/dashboard');
     } catch (error) {
