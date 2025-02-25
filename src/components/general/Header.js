@@ -1,58 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
-const HeaderWrapper = styled.div`
-  height: 80px;
-  @media (max-width: 768px) {
-    height: ${props => props.isOpen ? '300px' : '70px'};
-  }
-`;
-
-const HeaderContainer = styled.header`
-  width: 100%;
-  padding: 1rem 10%;
+const HeaderWrapper = styled.header`
   background: white;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: fixed;
   top: 0;
   left: 0;
+  right: 0;
   z-index: 1000;
-  box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
+  height: 80px;
 
   @media (max-width: 768px) {
-    flex-direction: column;
-    padding: 1rem 1rem;
-    align-items: flex-start;
-    ${props => props.isOpen && `
-      height: auto;
-      padding-bottom: 1rem;
-    `}
+    height: 60px;
+  }
+`;
+
+const HeaderContainer = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  height: 80px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  @media (max-width: 768px) {
+    height: 60px;
+    padding: 0 15px;
+    position: relative;
   }
 `;
 
 const LeftSection = styled.div`
   display: flex;
   align-items: center;
-`;
-
-const RightSection = styled.div`
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: stretch;
-    width: 100%;
-    gap: 0.5rem;
-    display: ${props => props.isOpen ? 'flex' : 'none'};
-    padding: 0 0.5rem;
-  }
 `;
 
 const Logo = styled.img`
@@ -64,38 +47,57 @@ const Logo = styled.img`
   }
 `;
 
-const SignalLogo = styled.img`
-  height: 35px;
-  width: auto;
-  margin-left: 1rem;
+const RightSection = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 20px;
 
   @media (max-width: 768px) {
-    display: none;
+    display: ${({ isOpen }) => (isOpen ? 'flex' : 'none')};
+    flex-direction: column;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    right: 0;
+    background: white;
+    padding: 20px;
+    gap: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    align-items: center;
+    justify-content: flex-start;
+    max-height: auto;
   }
 `;
 
 const Button = styled(Link)`
-  padding: 0.7rem 1.2rem;
-  background-color: #007bff;
-  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
   text-decoration: none;
-  border-radius: 6px;
-  transition: all 0.2s ease;
   font-weight: 500;
-  font-size: 0.8rem;
-  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
   text-align: center;
-  white-space: nowrap;
-
-  &:hover {
-    background-color: #0056b3;
-    transform: translateY(-2px);
-  }
+  
+  ${({ primary }) => primary ? `
+    background: #007bff;
+    color: white;
+    
+    &:hover {
+      background: #0056b3;
+    }
+  ` : `
+    background: transparent;
+    color: #007bff;
+    
+    &:hover {
+      background: #f8f9fa;
+    }
+  `}
 
   @media (max-width: 768px) {
-    width: 100%;
-    margin: 0.25rem 0;
-    box-sizing: border-box;
+    padding: 12px 20px;
+    width: 90%;
+    max-width: 300px;
+    border: 1px solid ${({ primary }) => primary ? '#007bff' : '#dee2e6'};
   }
 `;
 
@@ -103,54 +105,107 @@ const MenuButton = styled.button`
   display: none;
   background: none;
   border: none;
-  font-size: 1.5rem;
+  font-size: 24px;
   cursor: pointer;
-  position: absolute;
-  right: 1rem;
-  top: 1.5rem;
-  color: #007bff;
+  padding: 10px;
+  color: #333;
+  z-index: 1001;
 
   @media (max-width: 768px) {
     display: block;
   }
 `;
 
+const SignalLogo = styled.img`
+  height: 30px;
+  width: auto;
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  @media (max-width: 768px) {
+    height: 25px;
+  }
+`;
+
+const SignalLink = styled.a`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  border-radius: 5px;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #f8f9fa;
+  }
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
+
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const isLoggedIn = !!localStorage.getItem('userToken');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('userToken');
+    setIsLoggedIn(!!token);
+  }, []);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
 
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isOpen && !event.target.closest('header')) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [isOpen]);
+
   return (
     <HeaderWrapper isOpen={isOpen}>
-      <HeaderContainer isOpen={isOpen}>
+      <HeaderContainer>
         <LeftSection>
-          <Link to="/">
-            <Logo src="/logo512.png" alt="Logo" />
+          <Link to="/" onClick={() => setIsOpen(false)}>
+            <Logo src="/logo512.png" alt="PennBTI" />
           </Link>
         </LeftSection>
         
-        <MenuButton onClick={toggleMenu}>
+        <MenuButton onClick={toggleMenu} aria-label="Toggle menu">
           {isOpen ? '✕' : '☰'}
         </MenuButton>
 
         <RightSection isOpen={isOpen}>
-          <Button to="/roomLogin" onClick={() => setIsOpen(false)}>Room Setup</Button>
+          <Button to="/roomLogin" onClick={() => setIsOpen(false)}>
+            Room Setup
+          </Button>
           {isLoggedIn ? (
-            <Button to="/dashboard" onClick={() => setIsOpen(false)}>Dashboard</Button>
+            <Button to="/dashboard" primary onClick={() => setIsOpen(false)}>
+              Dashboard
+            </Button>
           ) : (
-            <Button to="/userLogin" onClick={() => setIsOpen(false)}>User Login</Button>
+            <Button to="/userLogin" primary onClick={() => setIsOpen(false)}>
+              User Login
+            </Button>
           )}
-          <a 
+          <SignalLink 
             href="https://the-signal.vercel.app/" 
             target="_blank" 
             rel="noopener noreferrer"
             onClick={() => setIsOpen(false)}
           >
             <SignalLogo src="/signal.png" alt="Signal" />
-          </a>
+          </SignalLink>
         </RightSection>
       </HeaderContainer>
     </HeaderWrapper>
