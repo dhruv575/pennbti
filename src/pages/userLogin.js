@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -101,6 +101,34 @@ const UserLogin = () => {
     gender: '',
     preference: ''
   });
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem('userToken');
+      if (token) {
+        try {
+          const response = await fetch('http://localhost:5000/api/users/me', {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          
+          if (response.ok) {
+            // User is already logged in, redirect to dashboard
+            navigate('/dashboard');
+          } else {
+            // Token is invalid, remove it
+            localStorage.removeItem('userToken');
+          }
+        } catch (error) {
+          console.error('Error checking auth:', error);
+          localStorage.removeItem('userToken');
+        }
+      }
+    };
+
+    checkAuth();
+  }, [navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();

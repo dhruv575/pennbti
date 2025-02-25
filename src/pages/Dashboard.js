@@ -154,6 +154,15 @@ const TestButton = styled(Button)`
   margin-top: 20px;
 `;
 
+const LogoutButton = styled(TestButton)`
+  margin-top: 10px;
+  background: #dc3545;
+
+  &:hover {
+    background: #c82333;
+  }
+`;
+
 const MatchList = styled.ul`
   list-style: none;
   padding: 0;
@@ -315,6 +324,11 @@ const Dashboard = () => {
     fetchMatches();
   }, [user]);
 
+  const handleLogout = () => {
+    localStorage.removeItem('userToken');
+    navigate('/userLogin');
+  };
+
   return (
     <DashboardContainer>
       <UserInfoBox>
@@ -333,6 +347,9 @@ const Dashboard = () => {
             <TestButton onClick={() => navigate('/test')}>
               {user.mbti ? 'Retake Test' : 'Take Test'}
             </TestButton>
+            <LogoutButton onClick={handleLogout}>
+              Logout
+            </LogoutButton>
           </>
         )}
       </UserInfoBox>
