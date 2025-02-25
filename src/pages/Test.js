@@ -1,0 +1,285 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
+import questions from '../assets/questions.json';
+
+const Container = styled.div`
+  padding: 5% 10%;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+
+  @media (max-width: 768px) {
+    padding: 5%;
+  }
+`;
+
+const ProgressBar = styled.div`
+  width: 100%;
+  height: 20px;
+  background-color: #ddd;
+  border-radius: 10px;
+  margin-bottom: 2rem;
+`;
+
+const Progress = styled.div`
+  width: ${props => props.percent}%;
+  height: 100%;
+  background-color: #007bff;
+  border-radius: 10px;
+  transition: width 0.3s ease;
+`;
+
+const QuestionContainer = styled.div`
+  background: white;
+  padding: 2rem 6rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: 1rem;
+  justify-content: space-evenly;
+  position: relative;
+  padding: 0 0 2.5rem 0;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    gap: 0.25rem;
+    padding: 0 0 1.5rem 0;
+  }
+`;
+
+const ButtonContainer = styled.div`
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const AnswerButton = styled.button`
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: white;
+  
+  ${props => {
+    if (props.value === 3) {
+      return `
+        border: 2px solid #6c757d;
+        ${props.selected && 'background-color: #6c757d;'}
+      `;
+    }
+    if (props.value > 3) {
+      const color = props.value === 5 ? '#28a745' : '#5cb85c';
+      return `
+        border: 2px solid ${color};
+        ${props.selected && `background-color: ${color};`}
+      `;
+    }
+    const color = props.value === 1 ? '#dc3545' : '#ff6b6b';
+    return `
+      border: 2px solid ${color};
+      ${props.selected && `background-color: ${color};`}
+    `;
+  }}
+  
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  @media (max-width: 768px) {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-width: 1px;
+  }
+`;
+
+const ButtonLabel = styled.span`
+  position: absolute;
+  bottom: 0;
+  ${props => props.align === 'left' ? 'left: 5%;' : 'right: 5%;'}
+  font-size: 0.9rem;
+  color: #666;
+
+  @media (max-width: 768px) {
+    font-size: 0.75rem;
+    ${props => props.align === 'left' ? 'left: 0;' : 'right: 0;'}
+  }
+`;
+
+const NavigationButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+`;
+
+const NavigationButton = styled.button`
+  padding: 1rem 3rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  
+  &:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+
+  &:not(:disabled):hover {
+    background-color: #0056b3;
+  }
+
+  @media (max-width: 768px) {
+    padding: 0.8rem 2rem;
+    font-size: 1rem;
+    width: 100%;
+  }
+`;
+
+const Question = styled.div`
+  margin-bottom: 2rem;
+  
+  &:last-child {
+    margin-bottom: 1rem;
+  }
+
+  @media (max-width: 768px) {
+    margin-bottom: 1.5rem;
+  }
+`;
+
+const QuestionText = styled.p`
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+  color: #333;
+
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+  }
+`;
+
+const Test = () => {
+  const navigate = useNavigate();
+  const [currentSection, setCurrentSection] = useState(0);
+  const [answers, setAnswers] = useState([
+    new Array(10).fill(0),
+    new Array(10).fill(0),
+    new Array(10).fill(0),
+    new Array(10).fill(0)
+  ]);
+
+  useEffect(() => {
+    const token = localStorage.getItem('userToken');
+    if (!token) {
+      navigate('/userLogin');
+    }
+  }, [navigate]);
+
+  const handleAnswer = (questionIndex, value) => {
+    const newAnswers = [...answers];
+    newAnswers[currentSection][questionIndex] = value;
+    setAnswers(newAnswers);
+  };
+
+  const isCurrentSectionComplete = () => {
+    return answers[currentSection].every(answer => answer !== 0);
+  };
+
+  const calculateMBTI = async () => {
+    const averages = answers.map(section => 
+      section.reduce((a, b) => a + b, 0) / section.length
+    );
+
+    const mbti = [
+      averages[0] < 2.5 ? 'E' : 'I',
+      averages[1] < 2.5 ? 'S' : 'N',
+      averages[2] < 2.5 ? 'T' : 'F',
+      averages[3] < 2.5 ? 'J' : 'P'
+    ].join('');
+
+    try {
+      const response = await fetch('http://localhost:5000/api/users/mbti', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('userToken')}`
+        },
+        body: JSON.stringify({ mbti })
+      });
+
+      if (!response.ok) throw new Error('Failed to update MBTI');
+      
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Error updating MBTI:', error);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentSection < 3) {
+      window.scrollTo(0, 0);
+      setCurrentSection(currentSection + 1);
+    } else {
+      calculateMBTI();
+    }
+  };
+
+  const currentQuestions = questions.slice(
+    currentSection * 10,
+    (currentSection + 1) * 10
+  );
+
+  return (
+    <Container>
+      <ProgressBar>
+        <Progress percent={currentSection * 25} />
+      </ProgressBar>
+
+      <QuestionContainer>
+        {currentQuestions.map((question, index) => (
+          <Question key={index}>
+            <QuestionText>{question.text}</QuestionText>
+            <ButtonGroup>
+              <ButtonLabel align="left">Disagree</ButtonLabel>
+              {[1, 2, 3, 4, 5].map((value) => (
+                <ButtonContainer key={value}>
+                  <AnswerButton
+                    value={value}
+                    selected={answers[currentSection][index] === value}
+                    onClick={() => handleAnswer(index, value)}
+                  />
+                </ButtonContainer>
+              ))}
+              <ButtonLabel align="right">Agree</ButtonLabel>
+            </ButtonGroup>
+          </Question>
+        ))}
+      </QuestionContainer>
+
+      <NavigationButtonContainer>
+        <NavigationButton
+          onClick={handleNext}
+          disabled={!isCurrentSectionComplete()}
+        >
+          {currentSection === 3 ? 'Submit' : 'Next'}
+        </NavigationButton>
+      </NavigationButtonContainer>
+    </Container>
+  );
+};
+
+export default Test; 
