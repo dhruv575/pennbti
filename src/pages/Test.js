@@ -176,38 +176,62 @@ const QuestionText = styled.p`
 const Test = () => {
   const navigate = useNavigate();
   const [currentSection, setCurrentSection] = useState(0);
-  const [answers, setAnswers] = useState([
-    new Array(10).fill(0),
-    new Array(10).fill(0),
-    new Array(10).fill(0),
-    new Array(10).fill(0)
-  ]);
+  const [randomizedQuestions, setRandomizedQuestions] = useState([]);
+  const [answers, setAnswers] = useState({});
 
   useEffect(() => {
     const token = localStorage.getItem('userToken');
     if (!token) {
       navigate('/userLogin');
     }
+    
+    // Randomize all questions
+    const shuffled = [...questions].sort(() => Math.random() - 0.5);
+    setRandomizedQuestions(shuffled);
   }, [navigate]);
 
   const handleAnswer = (questionIndex, value) => {
-    const newAnswers = [...answers];
-    newAnswers[currentSection][questionIndex] = value;
-    setAnswers(newAnswers);
+    const question = randomizedQuestions[currentSection * 10 + questionIndex];
+    
+    setAnswers(prev => ({
+      ...prev,
+      [question.text]: { value, code: question.code }
+    }));
   };
 
   const isCurrentSectionComplete = () => {
-    return answers[currentSection].every(answer => answer !== 0);
+    const sectionQuestions = randomizedQuestions.slice(
+      currentSection * 10,
+      (currentSection + 1) * 10
+    );
+    
+    return sectionQuestions.every(question => 
+      answers[question.text] !== undefined
+    );
   };
 
   const calculateMBTI = async () => {
-    console.log('Raw answers:', answers);
+    // Group answers by code
+    const answersByCode = {
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": []
+    };
     
-    const averages = answers.map(section => {
-      const sectionTotal = section.reduce((a, b) => a + b, 0);
-      const sectionAverage = parseFloat((sectionTotal / section.length).toFixed(2));
-      return sectionAverage;
+    Object.values(answers).forEach(answer => {
+      answersByCode[answer.code].push(answer.value);
     });
+    
+    console.log('Answers grouped by code:', answersByCode);
+    
+    // Calculate averages for each code group
+    const averages = [
+      calculateAverage(answersByCode["1"]), // E vs I
+      calculateAverage(answersByCode["2"]), // S vs N
+      calculateAverage(answersByCode["3"]), // T vs F
+      calculateAverage(answersByCode["4"])  // J vs P
+    ];
     
     console.log('Calculated averages:', averages);
 
@@ -246,6 +270,12 @@ const Test = () => {
       console.error('Error updating MBTI:', error);
     }
   };
+  
+  const calculateAverage = (array) => {
+    if (array.length === 0) return 0;
+    const sum = array.reduce((a, b) => a + b, 0);
+    return parseFloat((sum / array.length).toFixed(2));
+  };
 
   const handleNext = () => {
     if (currentSection < 3) {
@@ -256,7 +286,7 @@ const Test = () => {
     }
   };
 
-  const currentQuestions = questions.slice(
+  const currentQuestions = randomizedQuestions.slice(
     currentSection * 10,
     (currentSection + 1) * 10
   );
@@ -264,7 +294,7 @@ const Test = () => {
   return (
     <Container>
       <ProgressBar>
-        <Progress percent={currentSection * 25} />
+        <Progress percent={(currentSection + 1) * 25} />
       </ProgressBar>
 
       <QuestionContainer>
@@ -277,7 +307,7 @@ const Test = () => {
                 <ButtonContainer key={value}>
                   <AnswerButton
                     value={value}
-                    selected={answers[currentSection][index] === value}
+                    selected={answers[question.text]?.value === value}
                     onClick={() => handleAnswer(index, value)}
                   />
                 </ButtonContainer>
