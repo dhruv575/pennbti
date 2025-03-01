@@ -235,11 +235,13 @@ const Test = () => {
     
     console.log('Calculated averages:', averages);
 
+    // Fix: Reverse the logic for determining MBTI type
+    // For each dimension, if average is > 3, use the second letter
     const mbti = [
-      averages[0] < 2.5 ? 'E' : 'I',
-      averages[1] < 2.5 ? 'S' : 'N',
-      averages[2] < 2.5 ? 'T' : 'F',
-      averages[3] < 2.5 ? 'J' : 'P'
+      averages[0] > 3 ? 'I' : 'E',
+      averages[1] > 3 ? 'N' : 'S',
+      averages[2] > 3 ? 'F' : 'T',
+      averages[3] > 3 ? 'P' : 'J'
     ].join('');
 
     try {

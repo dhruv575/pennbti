@@ -105,9 +105,9 @@ const roomController = {
       let matches = [];
       
       if (room.type === 'platonic') {
-        matches = createPlatonicMatches(users);
+        matches = roomController.createPlatonicMatches(users);
       } else if (room.type === 'romantic') {
-        matches = createRomanticMatches(users);
+        matches = roomController.createRomanticMatches(users);
       } else {
         return res.status(400).json({ message: 'Invalid room type' });
       }
@@ -424,10 +424,10 @@ const roomController = {
   // Create platonic matches
   createPlatonicMatches: function createPlatonicMatches(users) {
     // For platonic matching, everyone can match with everyone
-    const preferenceLists = calculatePreferenceLists(users);
+    const preferenceLists = roomController.calculatePreferenceLists(users);
     
     // Run the matching algorithm
-    let matches = everyoneProposes(users, preferenceLists);
+    let matches = roomController.everyoneProposes(users, preferenceLists);
     
     // Handle odd number of users - match the last person with themselves
     if (users.length % 2 !== 0) {
@@ -456,13 +456,13 @@ const roomController = {
   // Create romantic matches
   createRomanticMatches: function createRomanticMatches(users) {
     // Calculate base preference lists
-    const basePreferenceLists = calculatePreferenceLists(users);
+    const basePreferenceLists = roomController.calculatePreferenceLists(users);
     
     // Filter by orientation for first round
-    const orientationFilteredLists = filterPreferencesByOrientation(users, basePreferenceLists);
+    const orientationFilteredLists = roomController.filterPreferencesByOrientation(users, basePreferenceLists);
     
     // First round of matching with orientation preferences
-    let matches = everyoneProposes(users, orientationFilteredLists);
+    let matches = roomController.everyoneProposes(users, orientationFilteredLists);
     
     // Find unmatched users after first round
     const matchedUserIds = new Set();
@@ -490,7 +490,7 @@ const roomController = {
       });
       
       // Run second round of matching
-      const secondRoundMatches = everyoneProposes(unmatchedUsers, secondRoundLists);
+      const secondRoundMatches = roomController.everyoneProposes(unmatchedUsers, secondRoundLists);
       
       // Combine matches from both rounds
       matches = [...matches, ...secondRoundMatches];

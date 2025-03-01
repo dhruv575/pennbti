@@ -201,13 +201,21 @@ const Room = () => {
     const { password } = JSON.parse(roomAuth);
 
     try {
+      // First, check if there are enough users with MBTI types
+      const usersWithMBTI = users.filter(user => user.mbti);
+      if (usersWithMBTI.length < 2) {
+        setError('At least 2 users with MBTI types are required to create matches');
+        return;
+      }
+
       const response = await fetch(`${API_URL}/api/rooms/${code}/matches`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'code': code,
           'password': password
-        }
+        },
+        body: JSON.stringify({}) // Empty body, but needed for POST request
       });
 
       if (response.status === 401) {
@@ -217,13 +225,16 @@ const Room = () => {
       }
 
       if (!response.ok) {
-        throw new Error('Failed to create matches');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create matches');
       }
       
       const data = await response.json();
       setRoom(data.room);
       setMatches(data.matches);
+      setError(''); // Clear any previous errors
     } catch (error) {
+      console.error('Error creating matches:', error);
       setError(error.message);
     }
   };
