@@ -195,11 +195,11 @@ const Header = () => {
             </Button>
           ) : (
             <Button to="/userLogin" primary onClick={() => setIsOpen(false)}>
-              User Login
+              Join
             </Button>
           )}
           <SignalLink 
-            href="https://the-signal.vercel.app/" 
+            href="https://www.thesign.al" 
             target="_blank" 
             rel="noopener noreferrer"
             onClick={() => setIsOpen(false)}
