@@ -158,7 +158,7 @@ const Landing = () => {
         <InfoBox>
           <Title>The Signal</Title>
           <Text>
-            If you like this project, you should check out some of the other work we do at <a href="https://the-signal.vercel.app/" target="_blank" rel="noopener noreferrer">The Signal</a>.
+            If you like this project, you should check out some of the other work we do at <a href="https://www.thesign.al" target="_blank" rel="noopener noreferrer">The Signal</a>.
             We promise you it'll be worth your time.
           </Text>
         </InfoBox>
