@@ -150,7 +150,7 @@ const Landing = () => {
         <InfoBox>
           <Title>Goals</Title>
           <Text>
-            Make new friends, find a romantic partner, or just have a good time. Penn Marraige Pact only runs once an year and includes the whole school, with MBTI match, you can do better.
+            Make new friends, find a romantic partner, or just have a good time. Penn Marriage Pact only runs once an year and includes the whole school, with MBTI match, you can do better.
             Plus, we hope people enjoy filling our our silly little questions!
           </Text>
         </InfoBox>
